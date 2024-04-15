@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import Specs
 import json
+import matplotlib.pyplot as plt
 #import backbone
 
 #Open and present available routes
@@ -44,6 +45,22 @@ layout = [
 
     ]
 
+
+#Generate plot of the route
+y_list = []
+x_list = []
+
+def plot_route():
+    print(Specs.waypoints_list)
+    for jau in Specs.waypoints_list:
+        y_list.append(jau[0])
+        x_list.append(jau[1])
+
+    plt.plot(y_list, x_list)
+    plt.show()
+
+
+
 # Create the window
 window = sg.Window("Lautta GUI", layout)
 
@@ -58,6 +75,7 @@ def gui_loop():
             Specs.update_calc()
             window["dist"].update(Specs.trip_dist)
             window["wp_num"].update(Specs.wp_num)
+            plot_route()
 
             #Make start available
             #Make update available
