@@ -1,0 +1,1 @@
+{"route": "tonttari.txt", "closest_plus": "4", "crumb_interval": "10", "steer_toler": 10, "tof_range": 20, "direction": "forward", "stages": {"retreat": false, "turn": false, "gps_cruise": false, "approach": false}, "aim_ahead": 5}

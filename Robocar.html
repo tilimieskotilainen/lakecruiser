@@ -1,0 +1,325 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <script>
+    function validateForm() {
+        var x = document.forms["setupForm"]["route"].value;
+        if (x == "") {
+            alert("Name must be filled out");
+            return false;
+        }
+    }
+    </script>
+
+
+
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            color: white;
+            background-color: black;
+}       
+
+        table {
+            width: 800px;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+            border: solid white;
+        }
+        b {
+            color:white;
+        }
+    </style>
+</head>
+<body>
+
+<form name="setupForm" onsubmit="return validateForm()" method="post">
+
+    <table>
+        <caption>Setup variables</caption>
+        <tr>
+            <td rowspan="10" style="width:500px">
+                <canvas id="bubble-chart" width="500" height="500"></canvas>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <label for="route">Route name:</label>
+                <input type="text" id="route" name="route">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="aim_ahead">Aim ahead crumbs (between 0 and 10):</label>
+                <input type="range" id="aim_ahead" name="aim_ahead" min="0" max="10">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="crumb_interval">Crumb interval (between 0 and 10):</label>
+                <input type="range" id="crumb_interval" name="crumb_interval" min="0" max="10">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="steer_damp">Steer damping (between 0 and 10):</label>
+                <input type="range" id="steer_damp" name="steer_damp" min="0" max="10">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="max_speed">Max speed (between 0 and 100):</label>
+                <input type="range" id="max_speed" name="max_speed" min="0" max="100">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Route direction:
+                <br>
+                <input type="radio" id="forward" name="direction" value="forward">
+                <label for="forward">Forward</label><br>
+                <input type="radio" id="reverse" name="direction" value="reverse">
+                <label for="reverse">Reverse</label><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Stages to execute:
+                <br>
+                <input type="checkbox" id="retreat" name="retreat">
+                <label for="retreat">Retreat</label><br>
+                <input type="checkbox" id="turn" name="turn">
+                <label for="turn">Turn</label><br>
+                <input type="checkbox" id="gps_cruise" name="gps_cruise">
+                <label for="gps_cruise">GPS Cruise</label><br>
+                <input type="checkbox" id="approach" name="approach">
+                <label for="approach">Approach</label><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="radio" id="waiting" name="operators" value="update">
+                <label for="update">Waiting</label><br>
+                <input type="radio" id="update" name="operators" value="update">
+                <label for="update">Update calculations</label><br>
+                <input type="radio" id="run" name="operators" value="run">
+                <label for="run">Run!</label><br>
+                <input type="radio" id="terminate" name="operators" value="terminate">
+                <label for="terminate">TERMINATE</label><br>
+
+            </td>
+        </tr>
+        <tr>
+            <td>Status: <b id="status_ind"></b></td>
+        </tr>
+        <tr>
+            <td>Stage: <b id="cur_stage"></b></td>
+        </tr>
+    </table>
+</form>
+
+    <table>
+        <caption>Navigation info</caption>
+        <tr>
+            <td rowspan="7" style="width:400px">[CAMERA VIEW HERE]</th>
+        </tr>
+        <tr>
+            <td>Number of waypoints: <b id="num_wp">-</b></td>
+        </tr>
+        <tr>
+            <td>Total distance: <b id="trip_dist">-</b> meters</td>
+        </tr>
+        <tr>
+            <td>Heading: <b id="heading">-</b></td>
+        </tr>
+        <tr>
+            <td>Battery status</td>
+        </tr>
+
+    </table>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+    <script>
+
+        var control_dict
+
+        function update_calc() {
+            var upd_route = document.getElementById("route").value;
+            var upd_aim_ahead = document.getElementById("aim_ahead").value;
+            var upd_crumb_interval = document.getElementById("crumb_interval").value;
+            var upd_steer_damp = document.getElementById("steer_damp").value;
+            var upd_max_speed = document.getElementById("max_speed").value;
+            if (document.getElementById("reverse").checked == true) {
+                var upd_direction = "reverse"
+            }
+            else var upd_direction = "forward"
+
+
+
+            if (document.getElementById("retreat").checked == true) {
+                var retreat_sel = true;
+            }
+            else {
+                var retreat_sel = false;
+            }
+
+            if (document.getElementById("turn").checked == true) {
+                var turn_sel = true;
+            }
+            else {
+                var turn_sel = false;
+            }
+            if (document.getElementById("gps_cruise").checked == true) {
+                var gps_cruise_sel = true;
+            }
+            else {
+                var gps_cruise_sel = false;
+            }
+            if (document.getElementById("approach").checked == true) {
+                var approach_sel = true;
+            }
+            else {
+                var approach_sel = false;
+            }
+
+            control_dict = {"control":"update", "route":upd_route, "aim_ahead":upd_aim_ahead, "crumb_interval":upd_crumb_interval, "steer_damping":upd_steer_damp, "max_speed":upd_max_speed, "direction":upd_direction, "stages":{"retreat":retreat_sel, "turn":turn_sel, "gps_cruise":gps_cruise_sel, "approach":approach_sel}}
+
+        }
+
+        function update_values(config) {
+            document.getElementById("route").value = config["route"];
+            document.getElementById("aim_ahead").value = config["aim_ahead"];
+            document.getElementById("crumb_interval").value = config["crumb_interval"];
+            document.getElementById("steer_damp").value = config["steer_damping"];
+            document.getElementById("max_speed").value = config["max_speed"];
+            if (config["direction"] == "forward") {
+                document.getElementById("forward").checked = true;
+                document.getElementById("reverse").checked = false;
+            }
+            else if (config["direction"] == "reverse") {
+                document.getElementById("forward").checked = false;
+                document.getElementById("reverse").checked = true;
+            }
+        }
+
+        let ws = new WebSocket("ws://127.0.0.1:5678/")
+
+        ws.onmessage = function (event) {
+            var data_parsed = JSON.parse(event.data)
+
+            if (data_parsed["status"] == "init") {
+                update_values(data_parsed["config"])
+                control_dict = data_parsed["config"]
+                control_dict["control"] = "waiting"
+                document.getElementById("waiting").checked = true
+            }
+
+            if (document.getElementById("update").checked == true) {
+                update_calc()
+                document.getElementById("waiting").checked = true
+            }
+            else if (document.getElementById("run").checked == true) {
+                control_dict["control"] = "run"
+            }
+            else if (document.getElementById("terminate").checked == true) {
+                control_dict["control"] = "terminate"
+                document.getElementById("waiting").checked = true
+            }
+
+            var gps = data_parsed["gps"]
+            var wp = data_parsed["wp"]
+            document.getElementById('num_wp').innerHTML = data_parsed["wp_num"]
+            document.getElementById('heading').innerHTML = data_parsed["heading"]
+            document.getElementById('status_ind').innerHTML = data_parsed["status"]
+            document.getElementById('cur_stage').innerHTML = data_parsed["cur_stage"]
+            document.getElementById('trip_dist').innerHTML = data_parsed["dist"]
+            //Tähän asti toimii
+
+
+            Chart.defaults.global.legend.display = false;
+            Chart.defaults.backgroundColor = "#000"
+            function draw_chart(wp_points){
+                new Chart(document.getElementById("bubble-chart"), {
+                    type: 'scatter',
+                    data: {
+                        datasets: wp_points
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        animation: false,
+                        title: {
+                            display: true,
+                            text: 'Route'
+                        },
+                        scales: {
+                            yAxes: [{ 
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: ""
+                                }
+                            }],
+                            xAxes: [{ 
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: ""
+                                }
+                            }]
+                        }
+                    }
+                }); //new Chart loppuu tähän
+            } //Funktio draw_cart loppuu tähän
+
+    var pointit = []
+
+    function create_point(label, color, point_style, x_coord, y_coord) {
+        var point = {
+            label: [label],
+            backgroundColor: color,
+            borderColor: color,
+            pointStyle: point_style,
+            radius: 10,
+            data: [{
+                x: x_coord,
+                y: y_coord,
+            }]
+        }
+        pointit.push(point)
+    }
+
+    create_point("Start", "#A221AC", "triangle", data_parsed["wp"]["start"][1], data_parsed["wp"]["start"][0])
+    var i;
+    for (i = 0; i < data_parsed["wp"]["waypoints"].length; i++) {
+        create_point(i, "#ffffff", "circle", data_parsed["wp"]["waypoints"][i][1], data_parsed["wp"]["waypoints"][i][0])
+    }
+    create_point("End", "#22AE22", "star", data_parsed["wp"]["end"][1], data_parsed["wp"]["end"][0])
+
+    create_point("Now", "#ffffff", "cross", data_parsed["gps"][1], data_parsed["gps"][0])
+
+    draw_chart(pointit)
+    
+    control_json = JSON.stringify(control_dict)
+    ws.send(control_json)
+    }
+ 
+
+    </script>
+
+
+
+</body>
+</html>
