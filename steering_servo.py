@@ -32,6 +32,7 @@ x = "s"
 
 def steer():
 
+  print("Steer thread running")
   while True:
 
     tof_straight = Specs.tof_straight
