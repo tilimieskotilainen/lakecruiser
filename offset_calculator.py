@@ -47,7 +47,6 @@ def coord_to_met(coord_list):
         x_cut_list.append(x_cut)
 
     return(y_cut_list, x_cut_list)
-
 if __name__ == "__main__":
     from_coord = [3610.489215, 1486.459584]
     to_coord = [3610.495225, 1486.712915]
