@@ -12,16 +12,41 @@ def offset_meter_calculator(from_min, to_min):
     return_dict = {"offsets_met":offsets_met, "offset_dist":offset_dist, "offset_min":offset_min}
     return(return_dict)
 
-#Convert coordinates to meter-based coordinates for easier plotting purposes
 
+x_minimum = 0
+y_minimum = 0
+
+#Convert coordinates to meter-based coordinates for easier plotting purposes
 def coord_to_met(coord_list):
-    met_list = []
+    met_list = [[],[]]
     for jip in coord_list:
         y_met = jip[0]*multipliers[0]
+        met_list[0].append(y_met)
         x_met = jip[1]*multipliers[1]
-        yx_met = [y_met, x_met]
-        met_list.append(yx_met)
-    return(met_list)
+        met_list[1].append(x_met)
+
+    global y_minimum
+    global x_minimum
+
+#Find smllest and largest values IF more than one coordinate in question
+#This is to distinguish between waypoint list (list of locations) and current gps-location (one location)
+    if len(met_list[0])>1:
+        y_minimum = min(met_list[0])
+        x_minimum = min(met_list[1])
+
+    y_cut_list = []
+    x_cut_list = []
+    yx_cut_list = []
+
+    #Subtract y_min and x_min from 
+    for jia in met_list[0]:
+        y_cut = jia - y_minimum
+        y_cut_list.append(y_cut)
+    for jea in met_list[1]:
+        x_cut = jea - x_minimum
+        x_cut_list.append(x_cut)
+
+    return(y_cut_list, x_cut_list)
 
 if __name__ == "__main__":
     from_coord = [3610.489215, 1486.459584]

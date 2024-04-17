@@ -84,32 +84,37 @@ layout = [
     ]
 
 #Generate plot of the route
+y_limits = []
+x_limits = []
+y_cut_list = []
+x_cut_list = []
+
 def plot_route():
-    coord_met = offset_calculator.coord_to_met(Specs.waypoints_list)
-    y_list = []
-    x_list = []
-    for jau in coord_met:
-        y_list.append(jau[0])
-        x_list.append(jau[1])
-    y_min = min(y_list)
-    x_min = min(x_list)
-    y_cut_list = []
-    x_cut_list = []
+
+    global y_limits
+    global x_limits
+    global y_cut_list
+    global x_cut_list
+
+    #Plotting the route and axes
+    y_cut_list, x_cut_list = offset_calculator.coord_to_met(Specs.waypoints_list)
     yx_cut_list = []
-    for jia in y_list:
-        y_cut = jia - y_min
-        y_cut_list.append(y_cut)
-        yx_cut_list.append(y_cut)
-    for jea in x_list:
-        x_cut = jea - x_min
-        x_cut_list.append(x_cut)
-        yx_cut_list.append(x_cut)
+    yx_cut_list.append(y_cut_list)
+    yx_cut_list.append(x_cut_list)
     range_min = min(yx_cut_list)
     range_max = max(yx_cut_list)
 
-    plt.xlim([range_min - 100, range_max + 100])
-    plt.ylim([range_min - 100, range_max + 100])
+def plot_location():
+    y_cut_list, x_cut_list = offset_calculator.coord_to_met(read_gps.current_min)
+    return([y_cut_list, x_cut_list])
+    
+def draw_plot():
+    x_limits = [range_min - 100, range_max + 100]
+    y_limits = [range_min - 100, range_max + 100]
+    plt.xlim(x_limits)
+    plt.ylim(y_limits)
     plt.plot(x_cut_list, y_cut_list)
+    plt.plot(plot_location())
     plt.show()
 
 # Create the GUI window
