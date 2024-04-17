@@ -21,6 +21,7 @@ import time
 import gps_cruise
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
+import offset_calculator
 
 gps_cruise_thread = threading.Thread(target=gps_cruise.captain, args=(), daemon=True) #Define GUI thread
 
@@ -54,10 +55,12 @@ jou = sc.read()
 config_dict = json.loads(jou) #Read the contents of the opened file and assign it to the variable config
 sc.close()
 
-#Default values:
+#Default values tos how in GUI:
 def_aim_ahead = config_dict["aim_ahead"]
 def_steer_toler = config_dict["steer_toler"]
 def_tof_range = config_dict["tof_range"]
+
+
 
 layout = [
     [sg.OptionMenu(values=(routes_list), default_value = "Select route", expand_x=True, key="route_selection")],
@@ -81,28 +84,41 @@ layout = [
     ]
 
 #Generate plot of the route
-y_list = []
-x_list = []
-
 def plot_route():
-    print(Specs.waypoints_list)
-    for jau in Specs.waypoints_list:
+    coord_met = offset_calculator.coord_to_met(Specs.waypoints_list)
+    y_list = []
+    x_list = []
+    for jau in coord_met:
         y_list.append(jau[0])
         x_list.append(jau[1])
+    y_min = min(y_list)
+    x_min = min(x_list)
+    y_cut_list = []
+    x_cut_list = []
+    yx_cut_list = []
+    for jia in y_list:
+        y_cut = jia - y_min
+        y_cut_list.append(y_cut)
+        yx_cut_list.append(y_cut)
+    for jea in x_list:
+        x_cut = jea - x_min
+        x_cut_list.append(x_cut)
+        yx_cut_list.append(x_cut)
+    range_min = min(yx_cut_list)
+    range_max = max(yx_cut_list)
 
-    plt.plot(y_list, x_list)
+    plt.xlim([range_min - 100, range_max + 100])
+    plt.ylim([range_min - 100, range_max + 100])
+    plt.plot(x_cut_list, y_cut_list)
     plt.show()
 
-
-
-# Create the window
+# Create the GUI window
 window = sg.Window("Lautta GUI", layout)
 
+#Define responses to GUI actions
 def gui_loop():
-    # Create an event loop
     while True:
         event, values = window.read()
-
         if event == "Calculate":
             print("Calculated")
             Specs.route = values["route_selection"]
