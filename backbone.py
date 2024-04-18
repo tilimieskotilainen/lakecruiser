@@ -83,38 +83,39 @@ layout = [
     [sg.Text("Battery voltage"), sg.Text()]
     ]
 
-#Generate plot of the route
-y_limits = []
-x_limits = []
-y_cut_list = []
+#Initializing global variables for plot_related items
+#axis_limits = [] #Used for defining the visible range of x- and y-axis for the plot
+y_cut_list = [] #Defined globally to prevent having to recalculculate route plot when location is refreshed
 x_cut_list = []
 
 def plot_route():
 
-    global y_limits
-    global x_limits
-    global y_cut_list
+    global axis_limits
+    global y_cut_list #Defined globally to prevent having to recalculculate route plot when location is refreshed
     global x_cut_list
 
     #Plotting the route and axes
     y_cut_list, x_cut_list = offset_calculator.coord_to_met(Specs.waypoints_list)
     yx_cut_list = []
-    yx_cut_list.append(y_cut_list)
-    yx_cut_list.append(x_cut_list)
-    range_min = min(yx_cut_list)
-    range_max = max(yx_cut_list)
+    yx_cut_list.append(y_cut_list[0])
+    yx_cut_list.append(x_cut_list[0])
+    print("YX_cut_list", yx_cut_list)
+    axis_limits = [min(yx_cut_list), max(yx_cut_list)]
+#    print("Vasta luotu axis limits:", axis_limits)
+ 
 
 def plot_location():
-    y_cut_list, x_cut_list = offset_calculator.coord_to_met(read_gps.current_min)
-    return([y_cut_list, x_cut_list])
+    location_y, location_x = offset_calculator.coord_to_met(read_gps.current_min)
+    return([location_y, location_x])
     
 def draw_plot():
-    x_limits = [range_min - 100, range_max + 100]
-    y_limits = [range_min - 100, range_max + 100]
-    plt.xlim(x_limits)
-    plt.ylim(y_limits)
+    plot_margin_space = 100
+    print("Axis limits:", axis_limits)
+    plot_axis_range = [axis_limits[0] - plot_margin_space, axis_limits[1] + plot_margin_space]
+    plt.xlim(plot_axis_range)
+    plt.ylim(plot_axis_range)
     plt.plot(x_cut_list, y_cut_list)
-    plt.plot(plot_location())
+    plt.plot(plot_location()) #Vaatii vielä säätöä, että miten näyttää yhden pisteen ja miten päivittää
     plt.show()
 
 # Create the GUI window
@@ -131,6 +132,7 @@ def gui_loop():
             window["dist"].update(Specs.trip_dist)
             window["wp_num"].update(Specs.wp_num)
             plot_route()
+            draw_plot()
 
             #Make start available
             #Make update available
