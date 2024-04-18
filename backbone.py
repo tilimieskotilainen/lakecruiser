@@ -116,7 +116,7 @@ def draw_plot():
     plt.ylim(plot_axis_range)
     plt.plot(x_cut_list, y_cut_list)
     plt.plot(plot_location()) #Vaatii vielä säätöä, että miten näyttää yhden pisteen ja miten päivittää
-    plt.show()
+    plt.show() #Antaa viestin "qt.qpa.wayland: Wayland does not support QWindow::requestActivate()"
 
 # Create the GUI window
 window = sg.Window("Lautta GUI", layout)
