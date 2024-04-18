@@ -96,16 +96,16 @@ def plot_route():
 
     #Plotting the route and axes
     y_cut_list, x_cut_list = offset_calculator.coord_to_met(Specs.waypoints_list)
-    yx_cut_list = []
-    yx_cut_list.append(y_cut_list[0])
-    yx_cut_list.append(x_cut_list[0])
+    print("y-cut list:", y_cut_list)
+    yx_cut_list = y_cut_list + x_cut_list
     print("YX_cut_list", yx_cut_list)
     axis_limits = [min(yx_cut_list), max(yx_cut_list)]
 #    print("Vasta luotu axis limits:", axis_limits)
  
 
 def plot_location():
-    location_y, location_x = offset_calculator.coord_to_met(read_gps.current_min)
+    location_as_a_list = [read_gps.current_min]
+    location_y, location_x = offset_calculator.coord_to_met(location_as_a_list)
     return([location_y, location_x])
     
 def draw_plot():

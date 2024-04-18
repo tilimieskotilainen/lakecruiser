@@ -20,6 +20,7 @@ y_minimum = 0
 def coord_to_met(coord_list):
     met_list = [[],[]]
     for jip in coord_list:
+        print("coord_list:", coord_list)
         y_met = jip[0]*multipliers[0]
         met_list[0].append(y_met)
         x_met = jip[1]*multipliers[1]
