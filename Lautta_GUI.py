@@ -3,6 +3,9 @@ import Specs
 import json
 import matplotlib.pyplot as plt
 import read_voltage
+import threading
+import gps_cruise
+import compass_reader
 #import backbone
 
 #Open and present available routes
@@ -38,10 +41,9 @@ layout = [
     [sg.Button("Update", expand_x=True, key="Update")],
     [sg.Button("Start", button_color="Green", expand_x=True, key="Start")],
     [sg.Button("Stop", button_color="Red", expand_x=True, key="Stop")],
-    [sg.Text("Selected route"), sg.Text()],
-    [sg.Text("Closest crumb"), sg.Text()],
-    [sg.Text("Turn status"), sg.Text()],
-    [sg.Text("Heading"), sg.Text()],
+    [sg.Text("Selected route"), sg.Text("route")],
+    [sg.Text("Closest crumb"), sg.Text("closest_crumb")],
+    [sg.Text("Heading"), sg.Text("heading")],
     [sg.Text("Battery voltage"), sg.Text("0", key="volts")]
 
     ]
@@ -65,7 +67,20 @@ def plot_route():
 # Create the window
 window = sg.Window("Lautta GUI", layout)
 
+def realtime_data_cycle():
+    while True:
+        window["closest_crumb"].update(gps_cruise.closest_c)
+        window["heading"].update(compass_reader.heading)
+        window["volts"].update(read_voltage.converted_voltage)
+        time.sleep(1)
+
+
+
+
 def gui_loop():
+
+    realtime_data_cycle = threading.Thread(target=real_time_data, args=(), daemon=True)
+    realtime_data_cycle.start() # Start GPS thread
     # Create an event loop
     while True:
         event, values = window.read()
@@ -76,6 +91,7 @@ def gui_loop():
             Specs.update_calc()
             window["dist"].update(Specs.trip_dist)
             window["wp_num"].update(Specs.wp_num)
+            window["route"].update(Specs.route)
             plot_route()
 
             #Make start available
@@ -107,3 +123,4 @@ def gui_loop():
         if event == sg.WIN_CLOSED:
             break
     window.close()
+

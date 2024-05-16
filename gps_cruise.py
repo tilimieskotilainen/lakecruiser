@@ -9,7 +9,7 @@ import read_gps
 import Specs
 
 crumbs_left = 10 #Arbitrary number for initializing
-
+closest_c = None
 dist_bc = 0
 
 #Calculates the bearing and relative bearing from the first coordinate to the second coordinate, considering current heading
@@ -53,6 +53,7 @@ def captain():
     breadcrumb_coordinates = Specs.breadcrumb_coordinates
     print("Captain started, breadcrumbs:", breadcrumb_coordinates)
     global dist_bc
+    global closest_c
     location_now = read_gps.current_min #Find out current location for plotting
     while True:
         closest_plus = Specs.closest_plus

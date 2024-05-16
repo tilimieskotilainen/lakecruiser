@@ -27,13 +27,12 @@ gps_cruise_thread = threading.Thread(target=gps_cruise.captain, args=(), daemon=
 
 read_gps_thread = threading.Thread(target=read_gps.read_gps, args=(), daemon=True) #Define GPS thread
 read_gps_thread.start() # Start GPS thread
-#time.sleep(1)
+
 read_compass_thread = threading.Thread(target=compass_reader.read_compass, args=(), daemon=True) #Define compass thread
 read_compass_thread.start() # Start compass thread
-#time.sleep(1)
+
 steering_thread = threading.Thread(target=steering_servo.steer, args=(), daemon=True) #Define compass thread
 steering_thread.start() # Start steering servo thread
-#time.sleep(1)
 
 #Funktio joka lähtee pyörimään, kun UI:ssa valitaan statukseksi "run"
 def run():
