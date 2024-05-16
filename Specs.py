@@ -5,9 +5,9 @@ import trip_dist_calculator
 import breadcrumb_calculator
 
 #Variables for steering control
-tof_straight = 105
+tof_straight = 60
 tof_toler = 5
-tof_range = 20
+tof_range = 40
 steer_toler = 10
 
 #Variables for route phase selections

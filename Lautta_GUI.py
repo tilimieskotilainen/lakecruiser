@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import Specs
 import json
 import matplotlib.pyplot as plt
+import read_voltage
 #import backbone
 
 #Open and present available routes
@@ -41,7 +42,7 @@ layout = [
     [sg.Text("Closest crumb"), sg.Text()],
     [sg.Text("Turn status"), sg.Text()],
     [sg.Text("Heading"), sg.Text()],
-    [sg.Text("Battery voltage"), sg.Text()]
+    [sg.Text("Battery voltage"), sg.Text("0", key="volts")]
 
     ]
 

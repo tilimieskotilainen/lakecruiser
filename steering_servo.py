@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO          
+import RPi.GPIO as GPIO
 from time import sleep
 import board
 import busio
@@ -6,23 +6,27 @@ import adafruit_vl53l0x
 import time
 import Specs
 
-rel_bearing = -30 
+rel_bearing = 30
 i2c = busio.I2C(board.SCL, board.SDA)
 vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
-in1 = 18 #OK23
+in1 = 17 #OK23
 in2 = 27 #OK23
-en = 17 #OK23
-temp1=1
+#en = 17 #OK23
+temp1 = 1
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(in1,GPIO.OUT)
 GPIO.setup(in2,GPIO.OUT)
-GPIO.setup(en,GPIO.OUT)
+#GPIO.setup(en,GPIO.OUT)
 GPIO.output(in1,GPIO.LOW)
 GPIO.output(in2,GPIO.LOW)
-p=GPIO.PWM(en,1000)
-p.start(25)
+
+#SEURAAVAT kumitettu 14.5. koska herjasi ja epäselvää mitä tekee
+#p = GPIO.PWM(en,1000)
+#p.start(25)
+
+
 #print("\n")
 #print("The default speed & direction of motor is LOW & Forward.....")
 #print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
@@ -42,15 +46,10 @@ def steer():
     tof_right = tof_straight + tof_range
     steer_toler = Specs.steer_toler
 
-
-  #    x=raw_input()
-
     tof = vl53.range
+    print("TOF:,", tof)
 
   #Establishing the direction to run the motor based on TOF values vs. relative bearing
-
-#    print("r-bear:", rel_bearing, "TOF:", tof, "straight TOF:", tof_straight)
-
 
   #When desired direction (relative bearing) is straight (+/- steering tolerance),
   #determine adjustments needed based on current steer orientation
@@ -101,22 +100,22 @@ def steer():
 """
 
     if x=='s':
-#      print("Steering motor stopped")
+      print("Steering motor stopped")
       GPIO.output(in1,GPIO.LOW)
       GPIO.output(in2,GPIO.LOW)
   #    x='z'
 
     elif x=='f':
-#      print("Steering motor forward")
-      GPIO.output(in1,GPIO.HIGH)
-      GPIO.output(in2,GPIO.LOW)
+      print("Steering motor forward")
+      GPIO.output(in1,GPIO.LOW)
+      GPIO.output(in2,GPIO.HIGH)
       temp1=1
   #    x='z'
 
     elif x=='b':
-#      print("Steering motor backward")
-      GPIO.output(in1,GPIO.LOW)
-      GPIO.output(in2,GPIO.HIGH)
+      print("Steering motor backward")
+      GPIO.output(in1,GPIO.HIGH)
+      GPIO.output(in2,GPIO.LOW)
       temp1=0
   #    x='z'
       
@@ -128,8 +127,32 @@ def steer():
     else:
       print("Problem with running steering motor")
 
-    time.sleep(2)
+    time.sleep(0.5)
+
+
+def test_steer_motor(direction):
+  if direction == "forward":
+    print("Steering motor forward")
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.HIGH)
+
+  if direction == "backward":
+    print("Steering motor backward")
+    GPIO.output(in1,GPIO.HIGH)
+    GPIO.output(in2,GPIO.LOW)
+
+  if direction == "stop":
+    print("Steering motor stopped")
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.LOW)
+
 
 
 if __name__ == "__main__":
-    steer()
+  steer()
+
+
+#    test_steer_motor("backward")
+#    time.sleep(2)
+#    test_steer_motor("stop")
+
